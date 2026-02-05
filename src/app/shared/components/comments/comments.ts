@@ -1,5 +1,6 @@
+import { animate, state, style, transition, trigger } from '@angular/animations';
 import { CommonModule } from '@angular/common';
-import { Component, input, InputSignal, OnInit, output, OutputEmitterRef } from '@angular/core';
+import { Component, input, InputSignal, OnInit, output, OutputEmitterRef, signal, WritableSignal } from '@angular/core';
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -14,19 +15,36 @@ import { TimeAgoPipe } from "../../pipes/time-ago.pipe";
   imports: [CommonModule, MatListModule, MatButtonModule, MatIconModule, MatFormFieldModule, MatInputModule, ReactiveFormsModule, TimeAgoPipe],
   templateUrl: './comments.html',
   styleUrl: './comments.scss',
-  standalone: true
+  standalone: true,
+  animations: [
+    trigger('listItem', [
+      state('default', style({ transform: 'scale(1)', 'background-color': 'white', 'z-index': 1 })),
+      state('active', style({ transform: 'scale(1.05)', 'background-color': 'rgb(201, 157, 242)', 'z-index': 2 })),
+      transition('default => active', [animate('100ms ease-in-out')]),
+      transition('active => default', [animate('500ms ease-in-out')])
+    ])
+  ]
 })
 export class Comments implements OnInit {
 
+  // Input and Output signals to communicate with the parent component
   comments: InputSignal<Comment[]> = input.required<Comment[]>();
   newComment: OutputEmitterRef<string> = output<string>();
 
+  // Field of the reactive form
   commentControl!: FormControl;
+
+  // Dictionary-type signal to communicate the new state of each animations
+  animationStates: WritableSignal<{ [key: number]: 'default' | 'active' }> = signal({});
 
   constructor(private formBuilder: FormBuilder) { }
 
   ngOnInit(): void {
     this.commentControl = this.formBuilder.control('', [Validators.required, Validators.minLength(10)]);
+
+    for (let index in this.comments()) { // Equivalent to: for(let i=0; i<this.comments().length; i++)
+      this.animationStates()[index] = 'default';
+    }
   }
 
   onLeaveComment(): void {
@@ -36,6 +54,14 @@ export class Comments implements OnInit {
 
     this.newComment.emit(this.commentControl.value);
     this.commentControl.reset();
+  }
+
+  onListItemMouseEnter(index: number): void {
+    this.animationStates()[index] = 'active';
+  }
+
+  onListItemMouseLeave(index: number): void {
+    this.animationStates()[index] = 'default';
   }
 
 }
