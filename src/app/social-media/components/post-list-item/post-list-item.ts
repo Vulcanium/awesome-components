@@ -3,6 +3,7 @@ import { Component, input, InputSignal, output, OutputEmitterRef } from '@angula
 import { MatCardModule } from '@angular/material/card';
 import { User } from '../../../core/models/user';
 import { Comments } from "../../../shared/components/comments/comments";
+import { Highlight } from "../../../shared/directives/highlight";
 import { ShortenPipe } from "../../../shared/pipes/shorten.pipe";
 import { TimeAgoPipe } from "../../../shared/pipes/time-ago.pipe";
 import { UsernamePipe } from "../../../shared/pipes/username.pipe";
@@ -11,7 +12,7 @@ import { PostCommented } from '../../models/post-commented';
 
 @Component({
   selector: 'app-post-list-item',
-  imports: [CommonModule, MatCardModule, Comments, ShortenPipe, UsernamePipe, TimeAgoPipe],
+  imports: [CommonModule, MatCardModule, Comments, ShortenPipe, UsernamePipe, TimeAgoPipe, Highlight],
   templateUrl: './post-list-item.html',
   styleUrl: './post-list-item.scss',
   standalone: true
