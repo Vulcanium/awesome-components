@@ -1,0 +1,23 @@
+<div class="comments-row">
+    <mat-form-field>
+        <input type="text" matInput placeholder="Leave a comment..." [formControl]="commentControl">
+    </mat-form-field>
+
+    <button mat-icon-button (click)="onLeaveComment()">
+        <mat-icon>send</mat-icon>
+    </button>
+</div>
+
+@if(comments().length) {
+
+    <mat-list>
+        <h2 matSubheader>Comments</h2>
+
+        @for(comment of comments(); track comment.id) {
+            <mat-list-item>
+                <span mat-line>{{ comment.comment }}</span>
+                <span mat-line>{{ comment.createdDate | date }}</span>
+            </mat-list-item>
+        }
+    </mat-list>
+}
