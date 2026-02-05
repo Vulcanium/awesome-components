@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, input, InputSignal, OnInit } from '@angular/core';
+import { Component, input, InputSignal, OnInit, output, OutputEmitterRef } from '@angular/core';
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -18,6 +18,8 @@ import { Comment } from '../../../core/models/comment';
 export class Comments implements OnInit {
 
   comments: InputSignal<Comment[]> = input.required<Comment[]>();
+  newComment: OutputEmitterRef<string> = output<string>();
+
   commentControl!: FormControl;
 
   constructor(private formBuilder: FormBuilder) { }
@@ -26,8 +28,13 @@ export class Comments implements OnInit {
     this.commentControl = this.formBuilder.control('', [Validators.required, Validators.minLength(10)]);
   }
 
-  onLeaveComment() {
-    throw new Error('Method not implemented.');
+  onLeaveComment(): void {
+    if (this.commentControl.invalid) {
+      return;
+    }
+
+    this.newComment.emit(this.commentControl.value);
+    this.commentControl.reset();
   }
 
 }

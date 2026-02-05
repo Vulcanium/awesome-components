@@ -1,5 +1,5 @@
 <h2>Posts</h2>
 
 @for(post of posts(); track post.id) {
-    <app-post-list-item [post]="post"></app-post-list-item>
+    <app-post-list-item [post]="post" (postCommented)="onPostCommented($event)"></app-post-list-item>
 }
