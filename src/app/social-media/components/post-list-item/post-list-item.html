@@ -6,6 +6,7 @@
         </mat-card-title>
 
         <mat-card-subtitle>
+            <span>{{ user | username: 'en' }}</span>
             <span>{{ post().createdDate | date }}</span>
         </mat-card-subtitle>
     </mat-card-header>
@@ -16,7 +17,7 @@
             <img mat-card-image [src]="imageUrl" [alt]="post().title">
         }
 
-        <span class="post-content">{{ post().content }}</span>
+        <span class="post-content">{{ post().content | shorten: 100 }}</span>
     </mat-card-content>
 
     <mat-card-actions>
