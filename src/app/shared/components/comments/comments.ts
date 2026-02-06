@@ -58,16 +58,6 @@ export class Comments implements OnInit {
     this.initAnimationStates();
   }
 
-  initCommentControl(): void {
-    this.commentControl = this.formBuilder.control('', [Validators.required, Validators.minLength(10)]);
-  }
-
-  initAnimationStates(): void {
-    for (let index in this.comments()) { // Equivalent to: for(let i=0; i<this.comments().length; i++)
-      this.animationStates()[index] = 'default';
-    }
-  }
-
   onLeaveComment(): void {
     if (this.commentControl.invalid) {
       return;
@@ -83,6 +73,16 @@ export class Comments implements OnInit {
 
   onListItemMouseLeave(index: number): void {
     this.animationStates()[index] = 'default';
+  }
+
+  private initCommentControl(): void {
+    this.commentControl = this.formBuilder.control('', [Validators.required, Validators.minLength(10)]);
+  }
+
+  private initAnimationStates(): void {
+    for (let index in this.comments()) { // Equivalent to: for(let i=0; i<this.comments().length; i++)
+      this.animationStates()[index] = 'default';
+    }
   }
 
 }

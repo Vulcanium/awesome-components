@@ -1,23 +1,13 @@
+import { Email } from "./email";
+import { LoginInfo } from "./login-info";
+import { PersonalInfo } from "./personal-info";
+
 // Entity representing all the values contained in the registration form. 
 // Used only within the complex-form feature component.
 export class ComplexFormValue {
-    personalInfo!: {
-        firstName: string,
-        lastName: string
-    };
-
+    personalInfo!: PersonalInfo;
     contactPreference!: string;
-
-    email?: {
-        email: string,
-        confirm: string
-    };
-
+    email?: Email;
     phone?: string;
-
-    loginInfo!: {
-        username: string,
-        password: string,
-        confirmPassword: string,
-    };
+    loginInfo!: LoginInfo;
 }
