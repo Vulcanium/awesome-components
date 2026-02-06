@@ -1,4 +1,4 @@
-import { animate, state, style, transition, trigger } from '@angular/animations';
+import { animate, animateChild, group, query, stagger, state, style, transition, trigger, useAnimation } from '@angular/animations';
 import { CommonModule } from '@angular/common';
 import { Component, input, InputSignal, OnInit, output, OutputEmitterRef, signal, WritableSignal } from '@angular/core';
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -8,6 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
 import { Comment } from '../../../core/models/comment';
+import { slideAndFadeAnimation } from '../../animations/slide-and-fade.animation';
 import { TimeAgoPipe } from "../../pipes/time-ago.pipe";
 
 @Component({
@@ -17,11 +18,24 @@ import { TimeAgoPipe } from "../../pipes/time-ago.pipe";
   styleUrl: './comments.scss',
   standalone: true,
   animations: [
+    trigger('list', [
+      transition(':enter', [
+        query('@listItem', [stagger('100ms', animateChild())])
+      ])
+    ]),
     trigger('listItem', [
       state('default', style({ transform: 'scale(1)', 'background-color': 'white', 'z-index': 1 })),
       state('active', style({ transform: 'scale(1.05)', 'background-color': 'rgb(201, 157, 242)', 'z-index': 2 })),
       transition('default => active', [animate('100ms ease-in-out')]),
-      transition('active => default', [animate('500ms ease-in-out')])
+      transition('active => default', [animate('500ms ease-in-out')]),
+      transition(':enter', [
+        query('.comment-text, .comment-date', [style({ opacity: 0 })]),
+        useAnimation(slideAndFadeAnimation, { params: { time: '250ms', color: 'rgb(201, 157, 242)' } }),
+        group([
+          query('.comment-text', [animate('250ms'), style({ opacity: 1 })]),
+          query('.comment-date', [animate('500ms'), style({ opacity: 1 })])
+        ])
+      ])
     ])
   ]
 })
