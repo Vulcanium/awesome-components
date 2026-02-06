@@ -54,8 +54,15 @@ export class Comments implements OnInit {
   constructor(private formBuilder: FormBuilder) { }
 
   ngOnInit(): void {
-    this.commentControl = this.formBuilder.control('', [Validators.required, Validators.minLength(10)]);
+    this.initCommentControl();
+    this.initAnimationStates();
+  }
 
+  initCommentControl(): void {
+    this.commentControl = this.formBuilder.control('', [Validators.required, Validators.minLength(10)]);
+  }
+
+  initAnimationStates(): void {
     for (let index in this.comments()) { // Equivalent to: for(let i=0; i<this.comments().length; i++)
       this.animationStates()[index] = 'default';
     }
