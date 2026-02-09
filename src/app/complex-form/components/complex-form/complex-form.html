@@ -26,6 +26,7 @@
     </mat-card>
 
     @if(showEmailControl$ | async) {
+
     <mat-card class="form-card" formGroupName="email">
         <mat-card-subtitle>Email</mat-card-subtitle>
         <div class="form-row">
@@ -40,6 +41,10 @@
                 <mat-error>{{ getEmailControlErrorText(confirmEmailControl) }}</mat-error>
             </mat-form-field>
         </div>
+
+        @if(showEmailError$ | async) {
+        <small class="error-text">The two addresses do not match</small>
+        }
     </mat-card>
     }
 
@@ -73,6 +78,10 @@
                 <mat-error>{{ getPasswordControlErrorText(confirmPasswordControl) }}</mat-error>
             </mat-form-field>
         </div>
+
+        @if(showPasswordError$ | async) {
+        <small class="error-text">The two passwords do not match.</small>
+        }
     </mat-card>
 
     @if(mainForm.valid) {

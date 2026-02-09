@@ -11,6 +11,7 @@ import { MatRadioModule } from '@angular/material/radio';
 import { map, Observable, startWith, tap } from 'rxjs';
 import { PASSWORD_REGEX, PHONE_REGEX } from '../../../core/constants/regex.constants';
 import { ComplexFormService } from '../../services/complex-form.service';
+import { confirmEqualValidator } from '../../validators/confirm-equal.validator';
 
 @Component({
   selector: 'app-complex-form',
@@ -38,6 +39,8 @@ export class ComplexForm implements OnInit {
   // Observables
   showEmailControl$!: Observable<boolean>;
   showPhoneControl$!: Observable<boolean>;
+  showEmailError$!: Observable<boolean>;
+  showPasswordError$!: Observable<boolean>;
 
   // Default value for radio buttons
   defaultValueForContactPreferenceControl: string = 'email';
@@ -55,7 +58,8 @@ export class ComplexForm implements OnInit {
     this.initLoginInfoForm();
     this.initMainForm();
 
-    this.initFormObservables();
+    this.initFormValueObservables();
+    this.initFormStatusObservables();
   }
 
   getEmailControlErrorText(control: AbstractControl): string {
@@ -127,7 +131,13 @@ export class ComplexForm implements OnInit {
     this.emailControl = this.formBuilder.nonNullable.control('');
     this.confirmEmailControl = this.formBuilder.nonNullable.control('');
 
-    this.emailForm = this.formBuilder.nonNullable.group({ email: this.emailControl, confirm: this.confirmEmailControl });
+    this.emailForm = this.formBuilder.nonNullable.group({
+      email: this.emailControl,
+      confirm: this.confirmEmailControl
+    }, {
+      validators: [confirmEqualValidator('email', 'confirm')],
+      updateOn: 'blur' // Emit only after a form field is complete, avoid displaying validators error message directly
+    });
   }
 
   private initPhoneControl(): void {
@@ -142,6 +152,9 @@ export class ComplexForm implements OnInit {
       username: ['', Validators.required],
       password: this.passwordControl,
       confirm: this.confirmPasswordControl
+    }, {
+      validators: [confirmEqualValidator('password', 'confirm')],
+      updateOn: 'blur' // Emit only after a form field is complete, avoid displaying validators error message directly
     });
   }
 
@@ -155,7 +168,7 @@ export class ComplexForm implements OnInit {
     });
   }
 
-  private initFormObservables(): void {
+  private initFormValueObservables(): void {
 
     // Email contact preference
     this.showEmailControl$ = this.contactPreferenceControl.valueChanges.pipe(
@@ -196,6 +209,26 @@ export class ComplexForm implements OnInit {
     }
 
     this.phoneControl.updateValueAndValidity(); // It must be called whenever validators are added or removed
+  }
+
+  private initFormStatusObservables(): void {
+
+    this.showEmailError$ = this.emailForm.statusChanges.pipe(
+      map(emailFormStatus =>
+        emailFormStatus === 'INVALID'
+        && this.emailControl.value
+        && this.confirmEmailControl.value
+      )
+    )
+
+    this.showPasswordError$ = this.loginInfoForm.statusChanges.pipe(
+      map(loginInfoFormStatus =>
+        loginInfoFormStatus === 'INVALID'
+        && this.passwordControl.value
+        && this.confirmPasswordControl.value
+        && this.loginInfoForm.hasError('confirmEqual') // To avoid displaying the error message when the username field is empty (also affected by the invalid status)
+      )
+    )
   }
 
 }
