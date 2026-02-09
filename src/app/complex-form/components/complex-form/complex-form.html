@@ -77,7 +77,11 @@
 
     @if(mainForm.valid) {
     <mat-card-actions>
-        <button mat-flat-button (click)="onSubmitForm()">SAVE</button>
+        <button mat-flat-button (click)="onSubmitForm()" [disabled]="loading">SAVE</button>
     </mat-card-actions>
+    }
+
+    @if(loading) {
+    <mat-spinner mode="indeterminate"></mat-spinner>
     }
 </mat-card>

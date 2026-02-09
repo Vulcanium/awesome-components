@@ -6,13 +6,15 @@ import { MatCardModule } from "@angular/material/card";
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatRadioModule } from '@angular/material/radio';
 import { map, Observable, startWith, tap } from 'rxjs';
 import { PASSWORD_REGEX, PHONE_REGEX } from '../../../core/constants/regex.constants';
+import { ComplexFormService } from '../../services/complex-form.service';
 
 @Component({
   selector: 'app-complex-form',
-  imports: [CommonModule, MatCheckboxModule, MatRadioModule, MatCardModule, ReactiveFormsModule, MatAnchor, MatFormFieldModule, MatInputModule],
+  imports: [CommonModule, MatCheckboxModule, MatRadioModule, MatCardModule, ReactiveFormsModule, MatAnchor, MatFormFieldModule, MatInputModule, MatProgressSpinnerModule],
   templateUrl: './complex-form.html',
   styleUrl: './complex-form.scss',
   standalone: true
@@ -37,7 +39,13 @@ export class ComplexForm implements OnInit {
   showEmailControl$!: Observable<boolean>;
   showPhoneControl$!: Observable<boolean>;
 
-  constructor(private formBuilder: FormBuilder) { }
+  // Default value for radio buttons
+  defaultValueForContactPreferenceControl: string = 'email';
+
+  // Spinner
+  loading: boolean = false;
+
+  constructor(private formBuilder: FormBuilder, private complexFormService: ComplexFormService) { }
 
   ngOnInit(): void {
     this.initPersonalInfoForm();
@@ -90,7 +98,18 @@ export class ComplexForm implements OnInit {
   }
 
   onSubmitForm(): void {
-    console.log(this.mainForm.value);
+    this.loading = true;
+
+    this.complexFormService.saveUserInfo(this.mainForm.value).pipe(
+      tap(isUserInfoSaved => {
+        this.loading = false;
+        if (isUserInfoSaved) {
+          this.mainForm.reset();
+        } else {
+          console.error('Save operation failed');
+        }
+      })
+    ).subscribe();
   }
 
   private initPersonalInfoForm(): void {
@@ -101,7 +120,7 @@ export class ComplexForm implements OnInit {
   }
 
   private initContactPreferenceControl(): void {
-    this.contactPreferenceControl = this.formBuilder.nonNullable.control('email'); // Radio button
+    this.contactPreferenceControl = this.formBuilder.nonNullable.control(this.defaultValueForContactPreferenceControl); // Radio button
   }
 
   private initEmailForm(): void {
