@@ -1,15 +1,18 @@
+import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatAnchor } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from '@angular/material/input';
 import { MatRadioModule } from '@angular/material/radio';
+import { map, Observable, startWith, tap } from 'rxjs';
+import { PASSWORD_REGEX, PHONE_REGEX } from '../../../core/constants/regex.constants';
 
 @Component({
   selector: 'app-complex-form',
-  imports: [MatCheckboxModule, MatRadioModule, MatCardModule, ReactiveFormsModule, MatAnchor, MatFormFieldModule, MatInputModule],
+  imports: [CommonModule, MatCheckboxModule, MatRadioModule, MatCardModule, ReactiveFormsModule, MatAnchor, MatFormFieldModule, MatInputModule],
   templateUrl: './complex-form.html',
   styleUrl: './complex-form.scss',
   standalone: true
@@ -30,6 +33,10 @@ export class ComplexForm implements OnInit {
   passwordControl!: FormControl;
   confirmPasswordControl!: FormControl;
 
+  // Observables
+  showEmailControl$!: Observable<boolean>;
+  showPhoneControl$!: Observable<boolean>;
+
   constructor(private formBuilder: FormBuilder) { }
 
   ngOnInit(): void {
@@ -39,6 +46,47 @@ export class ComplexForm implements OnInit {
     this.initPhoneControl();
     this.initLoginInfoForm();
     this.initMainForm();
+
+    this.initFormObservables();
+  }
+
+  getEmailControlErrorText(control: AbstractControl): string {
+
+    if (control.hasError('required')) {
+      return 'This field is required';
+    }
+
+    if (control.hasError('email')) {
+      return 'Email address invalid';
+    }
+
+    return 'This field contains an error';
+  }
+
+  getPhoneControlErrorText(control: AbstractControl): string {
+
+    if (control.hasError('required')) {
+      return 'This field is required';
+    }
+
+    if (control.hasError('pattern')) {
+      return 'The phone number must start with 0 or +33 and be followed by 9 digits';
+    }
+
+    return 'This field contains an error';
+  }
+
+  getPasswordControlErrorText(control: AbstractControl): string {
+
+    if (control.hasError('required')) {
+      return 'This field is required';
+    }
+
+    if (control.hasError('pattern')) {
+      return 'Your password must start with a capital letter and contain at least 8 characters, including a number and a special character';
+    }
+
+    return 'This field contains an error';
   }
 
   onSubmitForm(): void {
@@ -68,8 +116,8 @@ export class ComplexForm implements OnInit {
   }
 
   private initLoginInfoForm(): void {
-    this.passwordControl = this.formBuilder.nonNullable.control('', Validators.required);
-    this.confirmPasswordControl = this.formBuilder.nonNullable.control('', Validators.required);
+    this.passwordControl = this.formBuilder.nonNullable.control('', [Validators.required, Validators.pattern(PASSWORD_REGEX)]);
+    this.confirmPasswordControl = this.formBuilder.nonNullable.control('', [Validators.required, Validators.pattern(PASSWORD_REGEX)]);
 
     this.loginInfoForm = this.formBuilder.nonNullable.group({
       username: ['', Validators.required],
@@ -86,6 +134,49 @@ export class ComplexForm implements OnInit {
       phone: this.phoneControl,
       loginInfo: this.loginInfoForm
     });
+  }
+
+  private initFormObservables(): void {
+
+    // Email contact preference
+    this.showEmailControl$ = this.contactPreferenceControl.valueChanges.pipe(
+      startWith(this.contactPreferenceControl.value),
+      map(contactPreferenceValue => contactPreferenceValue === 'email'),
+      tap(isEmailSelected => { this.setEmailValidators(isEmailSelected) })
+    );
+
+    // Phone contact preference
+    this.showPhoneControl$ = this.contactPreferenceControl.valueChanges.pipe(
+      startWith(this.contactPreferenceControl.value),
+      map(contactPreferenceValue => contactPreferenceValue === 'phone'),
+      tap(isPhoneSelected => { this.setPhoneValidators(isPhoneSelected) })
+    );
+  }
+
+  private setEmailValidators(isEmailSelected: boolean): void {
+
+    if (isEmailSelected) {
+      this.emailControl.addValidators([Validators.required, Validators.email]);
+      this.confirmEmailControl.addValidators([Validators.required, Validators.email]);
+    } else {
+      this.emailControl.clearValidators();
+      this.confirmEmailControl.clearValidators();
+    }
+
+    // It must be called whenever validators are added or removed
+    this.emailControl.updateValueAndValidity();
+    this.confirmEmailControl.updateValueAndValidity();
+  }
+
+  private setPhoneValidators(isPhoneSelected: boolean): void {
+
+    if (isPhoneSelected) {
+      this.phoneControl.addValidators([Validators.required, Validators.pattern(PHONE_REGEX)]);
+    } else {
+      this.phoneControl.clearValidators();
+    }
+
+    this.phoneControl.updateValueAndValidity(); // It must be called whenever validators are added or removed
   }
 
 }
