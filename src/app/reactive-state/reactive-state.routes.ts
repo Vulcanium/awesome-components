@@ -10,7 +10,7 @@ export const REACTIVE_STATE_ROUTES: Routes = [
     {
         path: 'candidates/:id', // Equivalent to 'reactive-state/candidates/:id'
         loadComponent: () => import('./components/single-candidate/single-candidate').then(component => component.SingleCandidate),
-        providers: []
+        providers: [CandidatesService]
     },
     {
         path: '', // Equivalent to 'reactive-state'

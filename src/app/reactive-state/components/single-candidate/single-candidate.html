@@ -1,1 +1,27 @@
-<p>single-candidate works!</p>
+<mat-card>
+
+    @if(candidate$ | async; as candidate) {
+    <img [src]="candidate.imageUrl" [alt]="candidate.firstName + ' ' + candidate.lastName">
+    <div class="employee-info">
+        <h1>{{ candidate.firstName }} {{ candidate.lastName }}</h1>
+        <h2>{{ candidate.job }}, {{ candidate.department }} at {{ candidate.company }}</h2>
+        <h3>Contact : {{ candidate.email }}</h3>
+    </div>
+    }
+
+    <mat-card-actions>
+
+        @if(loading$ | async) {
+        <mat-spinner></mat-spinner>
+        }
+
+        @else {
+        <div class="action-buttons">
+            <button mat-flat-button color="accent" (click)="onHire()">HIRE</button>
+            <button mat-flat-button color="warn" (click)="onReject()">REJECT</button>
+        </div>
+        <button mat-flat-button color="primary" (click)="onGoBack()">BACK</button>
+        }
+
+    </mat-card-actions>
+</mat-card>

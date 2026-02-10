@@ -1,12 +1,15 @@
+import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import { MatCardModule } from "@angular/material/card";
+import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
+import { RouterLink } from '@angular/router';
 import { Observable } from 'rxjs';
 import { Candidate } from '../../models/candidate';
 import { CandidatesService } from '../../services/candidates.service';
-import { SingleCandidate } from "../single-candidate/single-candidate";
 
 @Component({
   selector: 'app-candidate-list',
-  imports: [SingleCandidate],
+  imports: [CommonModule, RouterLink, MatCardModule, MatProgressSpinnerModule],
   templateUrl: './candidate-list.html',
   styleUrl: './candidate-list.scss',
   standalone: true,
@@ -20,6 +23,11 @@ export class CandidateList implements OnInit {
   constructor(private candidatesService: CandidatesService) { }
 
   ngOnInit(): void {
+    this.initObservables();
+    this.candidatesService.getCandidatesFromServer();
+  }
+
+  private initObservables(): void {
     this.loading$ = this.candidatesService.loading$;
     this.candidates$ = this.candidatesService.candidates$;
   }
