@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { MatCardModule } from "@angular/material/card";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { ActivatedRoute, Router } from '@angular/router';
-import { Observable, switchMap } from 'rxjs';
+import { Observable, switchMap, take, tap } from 'rxjs';
 import { Candidate } from '../../models/candidate';
 import { CandidatesService } from '../../services/candidates.service';
 
@@ -26,15 +26,21 @@ export class SingleCandidate implements OnInit {
     this.initObservables();
   }
 
-  onHire() {
+  onHire(): void {
     throw new Error('Method not implemented.');
   }
 
-  onReject() {
-    throw new Error('Method not implemented.');
+  onReject(): void {
+    this.candidate$.pipe(
+      take(1),
+      tap(candidate => {
+        this.candidatesService.rejectCandidate(candidate.id);
+        this.onGoBack();
+      })
+    ).subscribe();
   }
 
-  onGoBack() {
+  onGoBack(): void {
     this.router.navigateByUrl('/reactive-state/candidates');
   }
 
