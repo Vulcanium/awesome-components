@@ -2,6 +2,21 @@
 
 <mat-card>
 
+    <div class="form">
+        <mat-form-field appearance="fill">
+            <input matInput type="text" [formControl]="searchCandidateControl">
+            <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+
+        <div class="form-group">
+            <select [formControl]="searchCandidateTypeControl">
+                @for(option of searchCandidateTypeOptions; track option.label) {
+                <option [value]="option.value">{{ option.label }}</option>
+                }
+            </select>
+        </div>
+    </div>
+
     @if(loading$ | async) {
     <mat-spinner></mat-spinner>
     }

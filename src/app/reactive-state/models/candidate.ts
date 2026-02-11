@@ -1,3 +1,5 @@
+// Entity representing a candidate in the application.
+// Used only within the reactive-state feature component.
 export class Candidate {
     id!: number
     firstName!: string
