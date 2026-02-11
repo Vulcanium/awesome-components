@@ -41,6 +41,19 @@ export class CandidatesService {
         );
     }
 
+    // Optimistic approach: Update observables before receiving the server response
+    hireCandidate(id: number): void {
+        this.candidates$.pipe(
+            take(1),
+            map(candidates => candidates.map(candidate => candidate.id === id ? { ...candidate, company: 'Snapface ltd' } : candidate)),
+            tap(candidatesUpdated => this.setCandidatesStatus(candidatesUpdated)),
+            switchMap(candidatesUpdated =>
+                this.http.patch(`${environment.apiUrl}/candidates/${id}`, candidatesUpdated.find(candidate => candidate.id === id))
+            )
+        ).subscribe();
+    }
+
+    // Pessimistic approach: Wait for the server response before updating observables
     rejectCandidate(id: number): void {
         this.setLoadingStatus(true);
 

@@ -27,7 +27,13 @@ export class SingleCandidate implements OnInit {
   }
 
   onHire(): void {
-    throw new Error('Method not implemented.');
+    this.candidate$.pipe(
+      take(1),
+      tap(candidate => {
+        this.candidatesService.hireCandidate(candidate.id);
+        this.onGoBack();
+      })
+    ).subscribe();
   }
 
   onReject(): void {
